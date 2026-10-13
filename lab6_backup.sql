@@ -118,19 +118,68 @@ SHOW FULL TABLES;
 
 
 -- STEP 10. Section 5.1, look at your schema
-
-
+--schema holds tables, a container for my tables 
+SELECT DATABASE() AS my_schema;
+SHOW FULL TABLES;
 -- STEP 11. Section 5.2, look at the data types
-
+--data types is what kind of data stored in each column
+--results in the fields and type of data it is suchas integer or date.
+--prod id is an integer bc no decimals, prod name isvarchar which is the limit of characters, unit price is decimal because it is money, added on is date so it can sort it properly, and roast level is up to 10 characters.
+DESCRIBE PRODUCT;
 
 -- STEP 12. Section 5.3, create a table by copying with a subquery
+--making a table out of select statement,  it shows the copy of the table created
+CREATE TABLE PRODUCT_COPY AS
+SELECT prod_id, prod_name, unit_price
+FROM PRODUCT;
 
+SELECT * FROM PRODUCT_COPY;
 
+SHOW CREATE TABLE PRODUCT_COPY;
 -- STEP 13. Section 5.4, change the structure of the copy
-
-
+--adds a new column  to show if product is on sale
+ALTER TABLE PRODUCT_COPY ADD COLUMN on_sale CHAR(1);
+--alter_table is used to change the structure and make colum wider
+ALTER TABLE PRODUCT_COPY MODIFY COLUMN prod_name VARCHAR(60) NOT NULL;
+--adds primary key back to the copy table
+ALTER TABLE PRODUCT_COPY ADD PRIMARY KEY (prod_id);
+--describe shows structure of table and the data types
+DESCRIBE PRODUCT_COPY;
+--returns error error since primary key was already in use
+INSERT INTO PRODUCT_COPY VALUES (1,'Duplicate',9.99,NULL);
+--removes column that added to the copy table
+ALTER TABLE PRODUCT_COPY DROP COLUMN on_sale;
 -- STEP 14. Section 5.5, insert, update and delete a row
-
+--adds a new row to table named kenya peaberry with price 21.40
+INSERT INTO PRODUCT_COPY VALUES (5,'Kenya Peaberry',21.40);
+SELECT * FROM PRODUCT_COPY WHERE prod_id = 5;
+--changes row in table to update the price to 22.95
+UPDATE PRODUCT_COPY SET unit_price = 22.95 WHERE prod_id = 5;
+SELECT * FROM PRODUCT_COPY WHERE prod_id = 5;
+--removes that row from table
+DELETE FROM PRODUCT_COPY WHERE prod_id = 5;
+SELECT * FROM PRODUCT_COPY WHERE prod_id = 5;
 
 -- STEP 15. Section 5.6, create a view and update through it
+--two rows come backunder 16.00
+CREATE VIEW CHEAP_PRODUCTS AS
+SELECT prod_id, prod_name, unit_price
+FROM PRODUCT_COPY
+WHERE unit_price < 16.00;
 
+SELECT * FROM CHEAP_PRODUCTS;
+
+--before
+SELECT prod_id, unit_price FROM PRODUCT_COPY WHERE prod_id = 3;
+--update names view 
+UPDATE CHEAP_PRODUCTS SET unit_price = 13.99 WHERE prod_id = 3;
+
+--after changes the price of the product with prod_id 3 to 13.99
+SELECT prod_id, unit_price FROM PRODUCT_COPY WHERE prod_id = 3;
+
+/*CREATE VIEW PRICE_SUMMARY AS
+SELECT COUNT(*) AS n, SUM(unit_price) AS total
+FROM PRODUCT_COPY;
+UPDATE PRICE_SUMMARY SET total = 99; /*
+
+-- doesnt show the total because it is a view and not a table
